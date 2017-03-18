@@ -80,6 +80,14 @@ double distance;
 double xij, yij, zij;
 double epotential = 0;
 double fraction = 0.5;
+double forcex[100000], forcey[100000], forcez[100000];
+for (int i = 0; i < p; i++)
+{
+  forcex[i]=0.;
+  forcey[i]=0.;
+  forcez[i]=0.;
+}
+
 for (int i = 0; i < p - 1; i++)
 {
   for (int j = i + 1; j < p; j++)
@@ -110,7 +118,24 @@ for (int i = 0; i < p - 1; i++)
     distance = sqrt(pow(xij, 2) + pow(yij, 2) + pow(zij, 2)) * a / sigma;
     epotential = epotential + 4 * (pow(distance, -12.) - pow(distance, -6.));
     counter++;
+
+    double r2 = xij * xij + yij * yij + zij * zij;
+    double fr2 = sigma * sigma / r2;
+    double fr6 = pow(fr2, -3.);
+    double fr12 = pow(fr6, 2);
+
+    double fij = (48.0 / r2) * eps * (fr12 -0.5 * fr6) ;
+
+    forcex[i] = forcex[i] + fij * xij;
+    forcey[i] = forcey[i] + fij * yij;
+    forcez[i] = forcez[i] + fij * zij;
+    forcex[j] = forcex[j] - fij * xij;
+    forcey[j] = forcey[j] - fij * yij;
+    forcez[j] = forcez[j] - fij * zij;
   }
+}
+for (int i = 0; i < p; i++) {
+cout << 1.602176 * pow(10, -9) * forcex[i]  << " " <<1.602176  * pow(10, -9.) * forcey[i] << " " <<1.602176 * pow(10, -9.) * forcez[i]<< endl;
 }
 return epotential / p;
 }
